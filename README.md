@@ -68,7 +68,7 @@ Edit the HTML file to change content, colors, or replace the background image as
 ## 📁 File Structure
 
 ```
-tech-studio-landing/
+cherry-blossom-landing-page/
 │
 ├── index.html
 ├── README.md
