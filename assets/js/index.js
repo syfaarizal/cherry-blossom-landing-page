@@ -799,3 +799,411 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+// Footer Interactivity
+document.addEventListener('DOMContentLoaded', function() {
+    // Back to top button
+    const backToTop = document.getElementById('backToTop');
+    
+    if (backToTop) {
+        backToTop.addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+        
+        // Show/hide back to top button based on scroll position
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > 500) {
+                backToTop.style.opacity = '1';
+                backToTop.style.visibility = 'visible';
+                backToTop.style.transform = 'translateY(0)';
+            } else {
+                backToTop.style.opacity = '0';
+                backToTop.style.visibility = 'hidden';
+                backToTop.style.transform = 'translateY(10px)';
+            }
+        });
+        
+        // Initialize
+        backToTop.style.transition = 'all 0.3s ease';
+        backToTop.style.opacity = '0';
+        backToTop.style.visibility = 'hidden';
+        backToTop.style.transform = 'translateY(10px)';
+    }
+    
+    // Animated statistics
+    function animateFooterStats() {
+        const visitorCount = document.getElementById('visitorCount');
+        const projectCount = document.getElementById('projectCount');
+        const responseTime = document.getElementById('responseTime');
+        
+        if (visitorCount) {
+            animateCounter(visitorCount, 0, 142, 2000);
+        }
+        
+        if (projectCount) {
+            animateCounter(projectCount, 0, 23, 1500);
+        }
+        
+        if (responseTime) {
+            animateCounter(responseTime, 0, 4.2, 2500, true);
+        }
+    }
+    
+    function animateCounter(element, start, end, duration, isFloat = false) {
+        let startTimestamp = null;
+        const step = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            
+            let currentValue;
+            if (isFloat) {
+                currentValue = start + (end - start) * progress;
+                element.textContent = currentValue.toFixed(1);
+            } else {
+                currentValue = Math.floor(start + (end - start) * progress);
+                element.textContent = currentValue;
+            }
+            
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            }
+        };
+        window.requestAnimationFrame(step);
+    }
+    
+    // Theme toggle functionality
+    const themeToggle = document.getElementById('themeToggle');
+    
+    if (themeToggle) {
+        // Check for saved theme preference or default to dark
+        const currentTheme = localStorage.getItem('theme') || 'dark';
+        
+        if (currentTheme === 'light') {
+            themeToggle.checked = true;
+            document.body.classList.add('light-theme');
+        }
+        
+        themeToggle.addEventListener('change', function() {
+            if (this.checked) {
+                document.body.classList.add('light-theme');
+                localStorage.setItem('theme', 'light');
+                
+                // Show theme change notification
+                showThemeNotification('Light theme activated');
+            } else {
+                document.body.classList.remove('light-theme');
+                localStorage.setItem('theme', 'dark');
+                
+                // Show theme change notification
+                showThemeNotification('Dark theme activated');
+            }
+        });
+    }
+    
+    function showThemeNotification(message) {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = 'theme-notification';
+        notification.textContent = message;
+        notification.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(255, 50, 80, 0.9);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 10000;
+            box-shadow: 0 5px 20px rgba(255, 50, 80, 0.4);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Show notification
+        setTimeout(() => {
+            notification.style.transform = 'translateY(0)';
+            notification.style.opacity = '1';
+        }, 10);
+        
+        // Hide and remove notification after 3 seconds
+        setTimeout(() => {
+            notification.style.transform = 'translateY(100px)';
+            notification.style.opacity = '0';
+            
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 300);
+        }, 3000);
+    }
+    
+    // Language selector functionality
+    const languageSelect = document.getElementById('languageSelect');
+    
+    if (languageSelect) {
+        // Load saved language preference
+        const savedLanguage = localStorage.getItem('language') || 'en';
+        languageSelect.value = savedLanguage;
+        
+        languageSelect.addEventListener('change', function() {
+            const selectedLanguage = this.value;
+            localStorage.setItem('language', selectedLanguage);
+            
+            // In a real application, this would change the language of the entire site
+            // For demo purposes, we'll show a notification
+            const languageNames = {
+                'en': 'English',
+                'id': 'Bahasa Indonesia',
+                'jp': 'Japanese',
+                'cn': 'Chinese',
+                'es': 'Spanish'
+            };
+            
+            alert(`Language changed to ${languageNames[selectedLanguage]}. In a real application, this would translate the entire website.`);
+            
+            // You could add actual translation logic here
+            // translateSite(selectedLanguage);
+        });
+    }
+    
+    // Footer newsletter form
+    const footerNewsletterForm = document.querySelector('.footer-newsletter-form');
+    
+    if (footerNewsletterForm) {
+        footerNewsletterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const emailInput = this.querySelector('input[type="email"]');
+            const email = emailInput.value;
+            
+            if (!email) {
+                alert('Please enter your email address');
+                return;
+            }
+            
+            // Simulate subscription
+            emailInput.value = '';
+            
+            // Show success animation
+            const submitBtn = this.querySelector('.footer-submit-btn');
+            const originalHTML = submitBtn.innerHTML;
+            
+            submitBtn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                </svg>
+            `;
+            submitBtn.style.background = 'linear-gradient(135deg, #32ff64 0%, #28e854 100%)';
+            
+            setTimeout(() => {
+                submitBtn.innerHTML = originalHTML;
+                submitBtn.style.background = 'linear-gradient(135deg, #ff3250 0%, #ff1744 100%)';
+                
+                // Show success message
+                const successMsg = document.createElement('div');
+                successMsg.textContent = 'Thank you for subscribing!';
+                successMsg.style.cssText = `
+                    position: absolute;
+                    top: -40px;
+                    left: 0;
+                    right: 0;
+                    background: rgba(50, 255, 100, 0.9);
+                    color: white;
+                    padding: 8px 12px;
+                    border-radius: 6px;
+                    font-size: 12px;
+                    font-weight: 600;
+                    text-align: center;
+                    animation: slideDown 0.3s ease;
+                `;
+                
+                this.appendChild(successMsg);
+                
+                setTimeout(() => {
+                    if (successMsg.parentNode) {
+                        successMsg.parentNode.removeChild(successMsg);
+                    }
+                }, 3000);
+            }, 1500);
+            
+            console.log('Newsletter subscription (footer):', email);
+        });
+    }
+    
+    // Create particles effect for footer
+    function createFooterParticles() {
+        const particlesContainer = document.getElementById('footerParticles');
+        if (!particlesContainer) return;
+        
+        const particleCount = 30;
+        
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'footer-particle';
+            
+            // Random properties
+            const size = Math.random() * 4 + 1;
+            const posX = Math.random() * 100;
+            const posY = Math.random() * 100;
+            const delay = Math.random() * 5;
+            const duration = Math.random() * 10 + 10;
+            const opacity = Math.random() * 0.3 + 0.1;
+            
+            particle.style.cssText = `
+                position: absolute;
+                width: ${size}px;
+                height: ${size}px;
+                background: #ff3250;
+                border-radius: 50%;
+                left: ${posX}%;
+                top: ${posY}%;
+                opacity: ${opacity};
+                animation: floatParticle ${duration}s ease-in-out ${delay}s infinite;
+                box-shadow: 0 0 10px rgba(255, 50, 80, 0.5);
+            `;
+            
+            particlesContainer.appendChild(particle);
+        }
+        
+        // Add CSS for particle animation
+        if (!document.querySelector('#particleAnimationStyle')) {
+            const style = document.createElement('style');
+            style.id = 'particleAnimationStyle';
+            style.textContent = `
+                @keyframes floatParticle {
+                    0%, 100% {
+                        transform: translateY(0) translateX(0);
+                    }
+                    25% {
+                        transform: translateY(-20px) translateX(10px);
+                    }
+                    50% {
+                        transform: translateY(-10px) translateX(-10px);
+                    }
+                    75% {
+                        transform: translateY(10px) translateX(5px);
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    }
+    
+    // Link hover effects
+    const footerLinks = document.querySelectorAll('.footer-links a');
+    
+    footerLinks.forEach(link => {
+        link.addEventListener('mouseenter', function() {
+            this.style.textShadow = '0 0 10px rgba(255, 50, 80, 0.8)';
+        });
+        
+        link.addEventListener('mouseleave', function() {
+            this.style.textShadow = '0 2px 10px rgba(0, 0, 0, 0.8)';
+        });
+    });
+    
+    // Social media link interactions
+    const socialCircles = document.querySelectorAll('.social-circle');
+    
+    socialCircles.forEach(circle => {
+        circle.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Add click animation
+            this.style.transform = 'scale(0.9)';
+            setTimeout(() => {
+                this.style.transform = '';
+            }, 150);
+            
+            // In a real application, this would open the social media page
+            const platform = this.getAttribute('aria-label').toLowerCase();
+            alert(`Opening ${platform} page... (Demo)`);
+        });
+    });
+    
+    // Initialize footer components
+    animateFooterStats();
+    createFooterParticles();
+    
+    // Animate stats when footer comes into view
+    const footerObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateFooterStats();
+                footerObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.3 });
+    
+    const footerSection = document.querySelector('.main-footer');
+    if (footerSection) {
+        footerObserver.observe(footerSection);
+    }
+    
+    // Add light theme CSS if needed
+    if (!document.querySelector('#lightThemeStyle')) {
+        const lightThemeStyle = document.createElement('style');
+        lightThemeStyle.id = 'lightThemeStyle';
+        lightThemeStyle.textContent = `
+            .light-theme {
+                background: #f5f5f7;
+                color: #333;
+            }
+            
+            .light-theme .content-wrapper,
+            .light-theme .overview-card,
+            .light-theme .contact-card,
+            .light-theme .map-container,
+            .light-theme .hours-container,
+            .light-theme .contact-form-container,
+            .light-theme .social-container,
+            .light-theme .newsletter-container,
+            .light-theme .visual-card,
+            .light-theme .philosophy-card,
+            .light-theme .gallery-container,
+            .light-theme .main-footer {
+                background: rgba(255, 255, 255, 0.9);
+                color: #333;
+                border-color: rgba(255, 50, 80, 0.2);
+            }
+            
+            .light-theme h1,
+            .light-theme h2,
+            .light-theme h3,
+            .light-theme h4,
+            .light-theme .nav-links a,
+            .light-theme .footer-title,
+            .light-theme .link-title {
+                color: #222;
+                text-shadow: none;
+            }
+            
+            .light-theme p,
+            .light-theme .description,
+            .light-theme .about-description,
+            .light-theme .nav-links a:not(:first-child) {
+                color: #555;
+                text-shadow: none;
+            }
+            
+            .light-theme .bg-overlay {
+                background: linear-gradient(135deg, rgba(245, 245, 247, 0.9) 0%, rgba(255, 255, 255, 0.8) 50%, rgba(245, 245, 247, 0.9) 100%);
+            }
+            
+            .light-theme .glow-effect {
+                opacity: 0.05;
+            }
+        `;
+        document.head.appendChild(lightThemeStyle);
+    }
+});
