@@ -111,3 +111,74 @@
         gap: 30px;
     }
 }
+
+/* Responsive About */
+@media (max-width: 1024px) {
+    .about-container {
+        padding: 0 60px;
+    }
+    
+    .about-content {
+        grid-template-columns: 1fr;
+        gap: 60px;
+    }
+    
+    .about-text {
+        padding-right: 0;
+    }
+    
+    .philosophy-section {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .gallery-item {
+        flex: 0 0 300px;
+        height: 400px;
+    }
+}
+
+@media (max-width: 768px) {
+    .about-section {
+        margin-top: 60px;
+        padding: 60px 0;
+    }
+    
+    .about-container {
+        padding: 0 30px;
+    }
+    
+    .about-title {
+        font-size: 36px;
+    }
+    
+    .about-subtitle {
+        font-size: 28px;
+    }
+    
+    .about-stats {
+        gap: 30px;
+        justify-content: center;
+    }
+    
+    .philosophy-section {
+        grid-template-columns: 1fr;
+    }
+    
+    .gallery-title {
+        font-size: 28px;
+    }
+    
+    .gallery-track {
+        padding: 0 20px;
+        gap: 20px;
+    }
+    
+    .gallery-item {
+        flex: 0 0 280px;
+        height: 350px;
+    }
+    
+    .scroll-indicator {
+        display: none;
+    }
+}

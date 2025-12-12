@@ -157,3 +157,282 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+// About Section Interactivity
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate stats counting for about section
+    function animateAboutStats() {
+        const stats = document.querySelectorAll('.about-stat .stat-number');
+        
+        stats.forEach(stat => {
+            const finalValue = parseInt(stat.getAttribute('data-count'));
+            let currentValue = 0;
+            const increment = finalValue / 30; // Adjust speed
+            const timer = setInterval(() => {
+                currentValue += increment;
+                if (currentValue >= finalValue) {
+                    currentValue = finalValue;
+                    clearInterval(timer);
+                }
+                stat.textContent = Math.floor(currentValue);
+            }, 40);
+        });
+    }
+    
+    // Horizontal Image Gallery
+    const galleryTrack = document.getElementById('galleryTrack');
+    const galleryDots = document.querySelectorAll('.gallery-dots .dot');
+    const prevBtn = document.querySelector('.prev-btn');
+    const nextBtn = document.querySelector('.next-btn');
+    const galleryItems = document.querySelectorAll('.gallery-item');
+    
+    if (galleryTrack) {
+        let currentIndex = 0;
+        let isDragging = false;
+        let startPosition = 0;
+        let currentTranslate = 0;
+        let previousTranslate = 0;
+        let animationID = 0;
+        
+        // Initialize gallery
+        function initGallery() {
+            updateGalleryPosition();
+            updateDots();
+            
+            // Add event listeners for drag
+            galleryTrack.addEventListener('mousedown', dragStart);
+            galleryTrack.addEventListener('touchstart', dragStart);
+            galleryTrack.addEventListener('mouseup', dragEnd);
+            galleryTrack.addEventListener('touchend', dragEnd);
+            galleryTrack.addEventListener('mousemove', drag);
+            galleryTrack.addEventListener('touchmove', drag);
+            
+            // Prevent image drag default behavior
+            galleryTrack.addEventListener('dragstart', (e) => e.preventDefault());
+            
+            // Navigation buttons
+            prevBtn.addEventListener('click', goToPrev);
+            nextBtn.addEventListener('click', goToNext);
+            
+            // Dot navigation
+            galleryDots.forEach(dot => {
+                dot.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    goToIndex(index);
+                });
+            });
+            
+            // Keyboard navigation
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowLeft') goToPrev();
+                if (e.key === 'ArrowRight') goToNext();
+            });
+        }
+        
+        // Drag functions
+        function dragStart(e) {
+            isDragging = true;
+            startPosition = getPositionX(e);
+            animationID = requestAnimationFrame(animation);
+            galleryTrack.classList.add('grabbing');
+        }
+        
+        function drag(e) {
+            if (isDragging) {
+                const currentPosition = getPositionX(e);
+                currentTranslate = previousTranslate + currentPosition - startPosition;
+            }
+        }
+        
+        function dragEnd() {
+            cancelAnimationFrame(animationID);
+            isDragging = false;
+            
+            const movedBy = currentTranslate - previousTranslate;
+            
+            // If moved enough, change slide
+            if (movedBy < -100 && currentIndex < galleryItems.length - 1) {
+                currentIndex += 1;
+            }
+            
+            if (movedBy > 100 && currentIndex > 0) {
+                currentIndex -= 1;
+            }
+            
+            goToIndex(currentIndex);
+            galleryTrack.classList.remove('grabbing');
+        }
+        
+        function getPositionX(e) {
+            return e.type.includes('mouse') ? e.pageX : e.touches[0].clientX;
+        }
+        
+        function animation() {
+            setGalleryPosition();
+            if (isDragging) requestAnimationFrame(animation);
+        }
+        
+        function setGalleryPosition() {
+            galleryTrack.style.transform = `translateX(${currentTranslate}px)`;
+        }
+        
+        function updateGalleryPosition() {
+            const itemWidth = galleryItems[0].offsetWidth + 30; // width + gap
+            currentTranslate = -currentIndex * itemWidth;
+            previousTranslate = currentTranslate;
+            setGalleryPosition();
+        }
+        
+        function goToIndex(index) {
+            currentIndex = index;
+            updateGalleryPosition();
+            updateDots();
+        }
+        
+        function goToPrev() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateGalleryPosition();
+                updateDots();
+            }
+        }
+        
+        function goToNext() {
+            if (currentIndex < galleryItems.length - 1) {
+                currentIndex++;
+                updateGalleryPosition();
+                updateDots();
+            }
+        }
+        
+        function updateDots() {
+            galleryDots.forEach((dot, index) => {
+                if (index === currentIndex) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+        }
+        
+        // Auto-scroll gallery (optional)
+        let autoScrollInterval;
+        
+        function startAutoScroll() {
+            autoScrollInterval = setInterval(() => {
+                if (!isDragging) {
+                    if (currentIndex < galleryItems.length - 1) {
+                        goToNext();
+                    } else {
+                        goToIndex(0);
+                    }
+                }
+            }, 5000); // Change slide every 5 seconds
+        }
+        
+        function stopAutoScroll() {
+            clearInterval(autoScrollInterval);
+        }
+        
+        // Start auto-scroll on mouse leave, stop on hover
+        galleryTrack.addEventListener('mouseenter', stopAutoScroll);
+        galleryTrack.addEventListener('mouseleave', startAutoScroll);
+        
+        // Initialize
+        initGallery();
+        startAutoScroll();
+    }
+    
+    // Philosophy cards hover effect with tilt
+    const philosophyCards = document.querySelectorAll('.philosophy-card');
+    
+    philosophyCards.forEach(card => {
+        card.addEventListener('mousemove', function(e) {
+            const rect = this.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const rotateY = (x - centerX) / 25;
+            const rotateX = (centerY - y) / 25;
+            
+            this.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-10px)`;
+            this.style.boxShadow = '0 30px 50px rgba(255, 50, 80, 0.15)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateY(0)';
+            this.style.boxShadow = '0 20px 40px rgba(255, 50, 80, 0.1)';
+        });
+    });
+    
+    // CTA button animation
+    const aboutCta = document.querySelector('.about-cta');
+    if (aboutCta) {
+        aboutCta.addEventListener('click', function() {
+            this.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                this.style.transform = 'scale(1)';
+                // Simulate navigation to contact section
+                alert('Redirecting to contact form...');
+            }, 150);
+        });
+    }
+    
+    // Visual card 3D effect
+    const visualCard = document.querySelector('.visual-card');
+    if (visualCard) {
+        visualCard.addEventListener('mousemove', function(e) {
+            const rect = this.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const rotateY = (x - centerX) / 20;
+            const rotateX = (centerY - y) / 20;
+            
+            this.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        });
+        
+        visualCard.addEventListener('mouseleave', function() {
+            this.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
+        });
+    }
+    
+    // Trigger about stats animation when section is in view
+    const aboutObserverOptions = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.3
+    };
+    
+    const aboutObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateAboutStats();
+                aboutObserver.unobserve(entry.target);
+            }
+        });
+    }, aboutObserverOptions);
+    
+    const aboutSection = document.querySelector('.about-section');
+    if (aboutSection) {
+        aboutObserver.observe(aboutSection);
+    }
+    
+    // Image gallery items hover effect
+    const galleryItemsHover = document.querySelectorAll('.gallery-item');
+    galleryItemsHover.forEach(item => {
+        item.addEventListener('mouseenter', function() {
+            this.style.zIndex = '10';
+        });
+        
+        item.addEventListener('mouseleave', function() {
+            this.style.zIndex = '1';
+        });
+    });
+});
