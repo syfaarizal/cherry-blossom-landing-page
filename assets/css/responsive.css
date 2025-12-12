@@ -52,3 +52,62 @@
         width: 150px;
     }
 }
+
+/* Responsive Overview */
+@media (max-width: 1024px) {
+    .overview-container {
+        padding: 0 60px;
+    }
+    
+    .overview-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .process-steps::before {
+        left: 5%;
+        right: 5%;
+    }
+}
+
+@media (max-width: 768px) {
+    .overview-section {
+        margin-top: 60px;
+        padding: 60px 0;
+    }
+    
+    .overview-container {
+        padding: 0 30px;
+    }
+    
+    .overview-title {
+        font-size: 36px;
+    }
+    
+    .overview-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+    
+    .overview-interactive {
+        padding: 30px;
+    }
+    
+    .process-steps {
+        flex-wrap: wrap;
+        gap: 30px;
+        justify-content: center;
+    }
+    
+    .process-steps::before {
+        display: none;
+    }
+    
+    .process-step {
+        max-width: 120px;
+    }
+    
+    .process-stats {
+        flex-direction: column;
+        gap: 30px;
+    }
+}
