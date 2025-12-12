@@ -436,3 +436,366 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+// Info Section Interactivity
+document.addEventListener('DOMContentLoaded', function() {
+    // Copy contact info functionality
+    const copyButtons = document.querySelectorAll('.contact-action[data-copy]');
+    
+    copyButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const textToCopy = this.getAttribute('data-copy');
+            
+            // Copy to clipboard
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                // Show success feedback
+                const originalText = this.innerHTML;
+                this.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                    </svg>
+                    Copied!
+                `;
+                
+                // Change button style temporarily
+                this.style.background = 'rgba(50, 255, 100, 0.2)';
+                this.style.borderColor = 'rgba(50, 255, 100, 0.5)';
+                this.style.color = '#32ff64';
+                
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    this.style.background = '';
+                    this.style.borderColor = '';
+                    this.style.color = '';
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+                alert('Failed to copy text to clipboard');
+            });
+        });
+    });
+    
+    // Map view button
+    const mapButton = document.querySelector('.contact-action[data-action="map"]');
+    if (mapButton) {
+        mapButton.addEventListener('click', function() {
+            // Zoom to studio on map
+            const studioElement = document.querySelector('.studio');
+            if (studioElement) {
+                studioElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+                
+                // Add pulse effect
+                studioElement.style.animation = 'none';
+                setTimeout(() => {
+                    studioElement.style.animation = 'pulse 0.5s 3';
+                }, 10);
+            }
+        });
+    }
+    
+    // Interactive map controls
+    const mapVisual = document.querySelector('.map-visual');
+    const mapGrid = document.querySelector('.map-grid');
+    const zoomInBtn = document.querySelector('.zoom-in');
+    const zoomOutBtn = document.querySelector('.zoom-out');
+    const resetBtn = document.querySelector('.reset');
+    
+    let zoomLevel = 1;
+    let panX = 0;
+    let panY = 0;
+    
+    function updateMapTransform() {
+        mapGrid.style.transform = `scale(${zoomLevel}) translate(${panX}px, ${panY}px)`;
+        mapGrid.style.transformOrigin = 'center center';
+    }
+    
+    if (zoomInBtn) {
+        zoomInBtn.addEventListener('click', function() {
+            if (zoomLevel < 2) {
+                zoomLevel += 0.2;
+                updateMapTransform();
+            }
+        });
+    }
+    
+    if (zoomOutBtn) {
+        zoomOutBtn.addEventListener('click', function() {
+            if (zoomLevel > 0.5) {
+                zoomLevel -= 0.2;
+                updateMapTransform();
+            }
+        });
+    }
+    
+    if (resetBtn) {
+        resetBtn.addEventListener('click', function() {
+            zoomLevel = 1;
+            panX = 0;
+            panY = 0;
+            updateMapTransform();
+        });
+    }
+    
+    // Draggable map
+    let isMapDragging = false;
+    let startMapX = 0;
+    let startMapY = 0;
+    
+    if (mapVisual) {
+        mapVisual.addEventListener('mousedown', startMapDrag);
+        mapVisual.addEventListener('touchstart', startMapDrag);
+        
+        function startMapDrag(e) {
+            isMapDragging = true;
+            const event = e.type === 'touchstart' ? e.touches[0] : e;
+            startMapX = event.clientX - panX;
+            startMapY = event.clientY - panY;
+            
+            mapVisual.style.cursor = 'grabbing';
+            
+            document.addEventListener('mousemove', dragMap);
+            document.addEventListener('touchmove', dragMap);
+            document.addEventListener('mouseup', stopMapDrag);
+            document.addEventListener('touchend', stopMapDrag);
+        }
+        
+        function dragMap(e) {
+            if (!isMapDragging) return;
+            
+            e.preventDefault();
+            const event = e.type === 'touchmove' ? e.touches[0] : e;
+            panX = event.clientX - startMapX;
+            panY = event.clientY - startMapY;
+            
+            updateMapTransform();
+        }
+        
+        function stopMapDrag() {
+            isMapDragging = false;
+            mapVisual.style.cursor = 'grab';
+            
+            document.removeEventListener('mousemove', dragMap);
+            document.removeEventListener('touchmove', dragMap);
+            document.removeEventListener('mouseup', stopMapDrag);
+            document.removeEventListener('touchend', stopMapDrag);
+        }
+        
+        mapVisual.style.cursor = 'grab';
+    }
+    
+    // Operating hours status
+    function updateStatus() {
+        const now = new Date();
+        const day = now.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+        const hour = now.getHours();
+        const minutes = now.getMinutes();
+        const statusIndicator = document.getElementById('statusIndicator');
+        const statusText = document.getElementById('statusText');
+        
+        let isOpen = false;
+        
+        // Check if it's a weekday (Monday-Friday)
+        if (day >= 1 && day <= 5) {
+            // Check if within business hours (9 AM - 6 PM)
+            if (hour >= 9 && hour < 18) {
+                isOpen = true;
+            }
+        } else if (day === 6) { // Saturday
+            // Check if within business hours (10 AM - 4 PM)
+            if (hour >= 10 && hour < 16) {
+                isOpen = true;
+            }
+        }
+        
+        if (isOpen) {
+            statusIndicator.style.background = '#32ff64';
+            statusIndicator.style.boxShadow = '0 0 10px rgba(50, 255, 100, 0.8)';
+            
+            // Calculate closing time
+            let closingHour, closingMinute;
+            if (day >= 1 && day <= 5) {
+                closingHour = 18;
+                closingMinute = 0;
+            } else {
+                closingHour = 16;
+                closingMinute = 0;
+            }
+            
+            const timeUntilClose = (closingHour - hour) * 60 - minutes;
+            const hoursLeft = Math.floor(timeUntilClose / 60);
+            const minutesLeft = timeUntilClose % 60;
+            
+            statusText.textContent = `Open • Closes in ${hoursLeft}h ${minutesLeft}m`;
+        } else {
+            statusIndicator.style.background = '#ff3250';
+            statusIndicator.style.boxShadow = '0 0 10px rgba(255, 50, 80, 0.8)';
+            
+            // Determine when it will open next
+            let nextOpenDay, nextOpenTime;
+            
+            if (day === 0) { // Sunday
+                nextOpenDay = "Monday";
+                nextOpenTime = "9:00 AM";
+            } else if (day === 6 && hour >= 16) { // Saturday after closing
+                nextOpenDay = "Monday";
+                nextOpenTime = "9:00 AM";
+            } else if (day >= 1 && day <= 5 && hour >= 18) { // Weekday after closing
+                if (day === 5) { // Friday
+                    nextOpenDay = "Monday";
+                    nextOpenTime = "9:00 AM";
+                } else {
+                    nextOpenDay = "Tomorrow";
+                    nextOpenTime = "9:00 AM";
+                }
+            } else { // Before opening
+                nextOpenDay = "Today";
+                nextOpenTime = (day === 6) ? "10:00 AM" : "9:00 AM";
+            }
+            
+            statusText.textContent = `Closed • Opens ${nextOpenDay} at ${nextOpenTime}`;
+        }
+    }
+    
+    // Update status immediately and then every minute
+    updateStatus();
+    setInterval(updateStatus, 60000);
+    
+    // Contact form functionality
+    const contactForm = document.getElementById('contactForm');
+    const formSuccess = document.getElementById('formSuccess');
+    const resetFormBtn = document.getElementById('resetForm');
+    const charCount = document.getElementById('charCount');
+    const messageTextarea = document.getElementById('message');
+    
+    if (messageTextarea && charCount) {
+        messageTextarea.addEventListener('input', function() {
+            const length = this.value.length;
+            charCount.textContent = length;
+            
+            if (length > 500) {
+                charCount.style.color = '#ff3250';
+                this.style.borderColor = '#ff3250';
+            } else if (length > 400) {
+                charCount.style.color = '#ffa500';
+                this.style.borderColor = '#ffa500';
+            } else {
+                charCount.style.color = 'rgba(255, 255, 255, 0.5)';
+                this.style.borderColor = 'rgba(255, 50, 80, 0.2)';
+            }
+        });
+    }
+    
+    if (contactForm) {
+        contactForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Simple form validation
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const subject = document.getElementById('subject').value;
+            const message = document.getElementById('message').value;
+            
+            if (!name || !email || !subject || !message) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            if (message.length > 500) {
+                alert('Message must be 500 characters or less');
+                return;
+            }
+            
+            // Simulate form submission
+            contactForm.style.display = 'none';
+            formSuccess.style.display = 'block';
+            
+            // In a real application, you would send the data to a server here
+            console.log('Form submitted:', { name, email, subject, message });
+        });
+    }
+    
+    if (resetFormBtn) {
+        resetFormBtn.addEventListener('click', function() {
+            formSuccess.style.display = 'none';
+            contactForm.style.display = 'block';
+            contactForm.reset();
+            charCount.textContent = '0';
+            charCount.style.color = 'rgba(255, 255, 255, 0.5)';
+        });
+    }
+    
+    // Social media link interactions
+    const socialLinks = document.querySelectorAll('.social-link');
+    
+    socialLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const platform = this.getAttribute('data-platform');
+            
+            // In a real application, these would open the actual social media pages
+            // For demo purposes, we'll show a notification
+            const platformNames = {
+                'instagram': 'Instagram',
+                'twitter': 'Twitter',
+                'linkedin': 'LinkedIn',
+                'dribbble': 'Dribbble'
+            };
+            
+            alert(`Opening ${platformNames[platform]} page... (Demo)`);
+            
+            // Add click animation
+            this.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                this.style.transform = '';
+            }, 150);
+        });
+    });
+    
+    // Newsletter form
+    const newsletterForm = document.getElementById('newsletterForm');
+    
+    if (newsletterForm) {
+        newsletterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const emailInput = this.querySelector('input[type="email"]');
+            const email = emailInput.value;
+            
+            if (!email) {
+                alert('Please enter your email address');
+                return;
+            }
+            
+            // Simulate newsletter subscription
+            emailInput.value = '';
+            
+            // Show success message
+            const originalButtonText = this.querySelector('button').textContent;
+            this.querySelector('button').textContent = 'Subscribed!';
+            this.querySelector('button').style.background = 'linear-gradient(135deg, #32ff64 0%, #28e854 100%)';
+            
+            setTimeout(() => {
+                this.querySelector('button').textContent = originalButtonText;
+                this.querySelector('button').style.background = 'linear-gradient(135deg, #ff3250 0%, #ff1744 100%)';
+                alert('Thank you for subscribing to our newsletter!');
+            }, 2000);
+            
+            console.log('Newsletter subscription:', email);
+        });
+    }
+    
+    // Interactive building hover effects on map
+    const mapBuildings = document.querySelectorAll('.map-building:not(.studio)');
+    
+    mapBuildings.forEach(building => {
+        building.addEventListener('mouseenter', function() {
+            this.style.background = 'rgba(255, 50, 80, 0.15)';
+            this.style.borderColor = 'rgba(255, 50, 80, 0.4)';
+        });
+        
+        building.addEventListener('mouseleave', function() {
+            this.style.background = 'rgba(255, 50, 80, 0.05)';
+            this.style.borderColor = 'rgba(255, 50, 80, 0.1)';
+        });
+    });
+});
