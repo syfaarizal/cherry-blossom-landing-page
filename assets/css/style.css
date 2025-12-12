@@ -2393,22 +2393,24 @@ h1 {
 
 .toggle-icon {
     position: absolute;
-    top: 50%;
+    top: 60%;
     transform: translateY(-50%);
     width: 20px;
     height: 20px;
     pointer-events: none;
+    
 }
 
 .sun-icon {
     position: absolute;
-    left: 5px;
+    right: 5px;
     fill: rgba(255, 255, 255, 0.6);
+    transform: translateX(250%);
 }
 
 .moon-icon {
     position: absolute;
-    right: 5px;
+    left: 5px;
     fill: rgba(255, 255, 255, 0.6);
 }
 
