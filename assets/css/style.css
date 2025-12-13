@@ -2030,7 +2030,7 @@ h1 {
 .footer-links {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 40px;
+    gap: 30px;
 }
 
 .link-column {
@@ -2062,13 +2062,13 @@ h1 {
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
 }
 
 .link-list li a {
     color: rgba(255, 255, 255, 0.6);
     text-decoration: none;
-    font-size: 15px;
+    font-size: 14px;
     transition: all 0.3s;
     display: inline-block;
     position: relative;
@@ -2077,14 +2077,14 @@ h1 {
 
 .link-list li a:hover {
     color: #ff3250;
-    padding-left: 10px;
+    padding-left: 12px;
     text-shadow: 0 0 10px rgba(255, 50, 80, 0.5);
 }
 
 .link-list li a::before {
     content: '→';
     position: absolute;
-    left: -15px;
+    left: 0;
     opacity: 0;
     transition: all 0.3s;
     color: #ff3250;
@@ -2102,8 +2102,8 @@ h1 {
 .new-badge::after {
     content: 'NEW';
     position: absolute;
-    top: -8px;
-    right: -35px;
+    top: 0;
+    right: -45px;
     background: #ff3250;
     color: #fff;
     font-size: 10px;
